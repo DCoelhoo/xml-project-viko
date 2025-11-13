@@ -6,10 +6,21 @@ use Illuminate\Http\Request;
 
 class ProcedureController extends Controller
 {
+    private function loadXml()
+    {
+        $xmlPath = storage_path('app/xml/procedures.xml');
+        return simplexml_load_file($xmlPath);
+    }
+
+    private function saveXml($xml)
+    {
+        $xmlPath = storage_path('app/xml/procedures.xml');
+        $xml->asXML($xmlPath);
+    }
+
     public function index(Request $request)
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         $procedures = collect($xml->procedure)->map(fn($p) => [
             'code' => (string)$p->code,
@@ -21,24 +32,20 @@ class ProcedureController extends Controller
         if ($request->filled('search')) {
             $search = strtolower($request->search);
 
-            $procedures = $procedures->filter(
-                fn($p) =>
-                str_contains(strtolower($p['title']), $search) ||
-                    str_contains(strtolower($p['code']), $search) ||
-                    str_contains(strtolower($p['category']), $search)
-            );
+            $procedures = $procedures->filter(function ($p) use ($search) {
+                return str_contains(strtolower($p['title']), $search)
+                    || str_contains(strtolower($p['code']), $search)
+                    || str_contains(strtolower($p['category']), $search);
+            });
         }
 
         return view('procedures', compact('procedures'));
     }
 
-    // ================================
-    // ADMIN: LIST
-    // ================================
+    // ADMIN INDEX
     public function adminIndex()
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         $procedures = collect($xml->procedure)->map(fn($p) => [
             'code' => (string)$p->code,
@@ -50,16 +57,13 @@ class ProcedureController extends Controller
         return view('admin.index', compact('procedures'));
     }
 
-    // ================================
-    // ADMIN: EDIT FORM
-    // ================================
+    // EDIT
     public function edit($code)
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         foreach ($xml->procedure as $p) {
-            if ((string)$p->code === $code) {
+            if ((string) $p->code === $code) {
                 return view('admin.edit', ['procedure' => $p]);
             }
         }
@@ -67,42 +71,34 @@ class ProcedureController extends Controller
         abort(404);
     }
 
-    // ================================
-    // ADMIN: UPDATE
-    // ================================
+    // UPDATE
     public function update(Request $request, $code)
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         foreach ($xml->procedure as $p) {
-            if ((string)$p->code === $code) {
+            if ((string) $p->code === $code) {
                 $p->title = $request->title;
                 $p->category = $request->category;
                 $p->duration = $request->duration;
             }
         }
 
-        $xml->asXML($xmlPath);
+        $this->saveXml($xml);
 
         return redirect('/admin')->with('success', 'Procedure updated successfully.');
     }
 
-    // ================================
-    // ADMIN: CREATE FORM
-    // ================================
+    // CREATE
     public function create()
     {
         return view('admin.create');
     }
 
-    // ================================
-    // ADMIN: STORE NEW PROCEDURE
-    // ================================
+    // STORE
     public function store(Request $request)
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         $new = $xml->addChild('procedure');
         $new->addChild('code', $request->code);
@@ -110,29 +106,26 @@ class ProcedureController extends Controller
         $new->addChild('category', $request->category);
         $new->addChild('duration', $request->duration);
 
-        $xml->asXML($xmlPath);
+        $this->saveXml($xml);
 
         return redirect('/admin')->with('success', 'Procedure created successfully.');
     }
 
-    // ================================
-    // ADMIN: DELETE
-    // ================================
+    // DELETE
     public function delete($code)
     {
-        $xmlPath = public_path('xml/procedures.xml');
-        $xml = simplexml_load_file($xmlPath);
+        $xml = $this->loadXml();
 
         $index = 0;
         foreach ($xml->procedure as $p) {
-            if ((string)$p->code === $code) {
+            if ((string) $p->code === $code) {
                 unset($xml->procedure[$index]);
                 break;
             }
             $index++;
         }
 
-        $xml->asXML($xmlPath);
+        $this->saveXml($xml);
 
         return redirect('/admin')->with('success', 'Procedure deleted successfully.');
     }
