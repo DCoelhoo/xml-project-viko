@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class, 'home']);
 Route::get('/contact', [PageController::class, 'contact']);
 Route::get('/procedures', [ProcedureController::class, 'index']);
+Route::get('/about', [PageController::class, 'about']);
 
 // ADMIN PANEL (protected)
 Route::middleware('admin')->group(function () {

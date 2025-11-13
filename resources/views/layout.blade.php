@@ -3,24 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Procedures</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>{{ $title ?? 'XML Procedures Project' }}</title>
+    @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <!-- Navbar -->
-    <nav class="bg-blue-600 text-white px-6 py-4 shadow-md">
-        <div class="flex space-x-6 text-lg font-medium">
-            <a href="/" class="hover:text-gray-200">Home</a>
-            <a href="/procedures" class="hover:text-gray-200">Procedures</a>
-            <a href="/contact" class="hover:text-gray-200">Contact</a>
+    <!-- NAVBAR -->
+    <nav class="bg-blue-600 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-semibold">XML Project</h1>
+
+            <div class="space-x-6 text-white font-medium">
+                <a href="/" class="hover:text-gray-200">Home</a>
+                <a href="/procedures" class="hover:text-gray-200">Procedures</a>
+                <a href="/contact" class="hover:text-gray-200">Contact</a>
+                <a href="/about" class="hover:text-gray-200">About</a>
+
+                @if(session()->has('admin'))
+                    <a href="/admin" class="ml-4 bg-white text-blue-600 px-3 py-1 rounded shadow hover:bg-gray-100">
+                        Admin
+                    </a>
+                    <a href="/admin/logout" class="hover:text-gray-200">Logout</a>
+                @endif
+            </div>
         </div>
     </nav>
 
-    <!-- Page content -->
-    <main class="p-6 max-w-6xl mx-auto">
+    <!-- PAGE CONTENT -->
+    <main class="max-w-6xl mx-auto p-6 my-6 bg-white shadow-lg rounded-lg">
         @yield('content')
     </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-12">
+        <p>© {{ date('Y') }} XML Project. All rights reserved.</p>
+    </footer>
 
 </body>
 </html>
