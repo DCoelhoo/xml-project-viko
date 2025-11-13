@@ -1,0 +1,15 @@
+<procedures>
+  <procedure>
+    <code>TRN001</code>
+    <title>Basic Safety Training</title>
+    <category>Safety</category>
+    <duration>30 minutes</duration>
+  </procedure>
+
+  <procedure>
+    <code>TRN002</code>
+    <title>Fire Drill</title>
+    <category>Emergency</category>
+    <duration>20 minutes</duration>
+  </procedure>
+</procedures>
