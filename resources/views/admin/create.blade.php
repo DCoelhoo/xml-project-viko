@@ -1,33 +1,55 @@
 @extends('layout')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-6">Add New Procedure</h1>
+<div class="max-w-3xl mx-auto bg-white p-8 shadow rounded">
+    <h1 class="text-2xl font-bold mb-6">Create Procedure</h1>
 
-<form method="POST" action="/admin/store" class="space-y-4">
-    @csrf
+    <form action="{{ route('admin.store') }}" method="POST" class="space-y-4">
+        @csrf
 
-    <div>
-        <label>Code:</label>
-        <input type="text" name="code" class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Code</label>
+            <input name="code" class="w-full p-2 border rounded" required>
+        </div>
 
-    <div>
-        <label>Title:</label>
-        <input type="text" name="title" class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Title</label>
+            <input name="title" class="w-full p-2 border rounded" required>
+        </div>
 
-    <div>
-        <label>Category:</label>
-        <input type="text" name="category" class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Category</label>
+            <input name="category" class="w-full p-2 border rounded">
+        </div>
 
-    <div>
-        <label>Duration:</label>
-        <input type="text" name="duration" class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Duration (minutes)</label>
+            <input name="duration" class="w-full p-2 border rounded" required>
+        </div>
 
-    <button class="bg-green-600 text-white px-4 py-2 rounded">
-        Create
-    </button>
-</form>
+        <div>
+            <label class="font-semibold">Description</label>
+            <textarea name="description" class="w-full p-2 border rounded" rows="4"></textarea>
+        </div>
+
+        <div>
+            <label class="font-semibold">Requirements</label>
+            <textarea name="requirements" class="w-full p-2 border rounded" rows="3"></textarea>
+        </div>
+
+        <div>
+            <label class="font-semibold">Level</label>
+            <input name="level" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+            <label class="font-semibold">Equipment</label>
+            <textarea name="equipment" class="w-full p-2 border rounded" rows="3"></textarea>
+        </div>
+
+        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Create
+        </button>
+    </form>
+</div>
 @endsection

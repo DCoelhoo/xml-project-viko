@@ -1,31 +1,55 @@
 @extends('layout')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-6">Edit Procedure</h1>
+<div class="max-w-3xl mx-auto bg-white p-8 shadow rounded">
+    <h1 class="text-2xl font-bold mb-6">Edit Procedure</h1>
 
-<form method="POST" action="/admin/update/{{ $procedure->code }}" class="space-y-4">
-    @csrf
+    <form action="{{ url('/admin/update/' . $procedure->code) }}" method="POST" class="space-y-4">
+        @csrf
 
-    <div>
-        <label>Title:</label>
-        <input type="text" name="title" value="{{ $procedure->title }}"
-               class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Code</label>
+            <input class="w-full p-2 border rounded bg-gray-100" value="{{ $procedure->code }}" disabled>
+        </div>
 
-    <div>
-        <label>Category:</label>
-        <input type="text" name="category" value="{{ $procedure->category }}"
-               class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Title</label>
+            <input name="title" class="w-full p-2 border rounded" value="{{ $procedure->title }}" required>
+        </div>
 
-    <div>
-        <label>Duration:</label>
-        <input type="text" name="duration" value="{{ $procedure->duration }}"
-               class="border px-3 py-2 rounded w-full">
-    </div>
+        <div>
+            <label class="font-semibold">Category</label>
+            <input name="category" class="w-full p-2 border rounded" value="{{ $procedure->category }}">
+        </div>
 
-    <button class="bg-blue-600 text-white px-4 py-2 rounded">
-        Save Changes
-    </button>
-</form>
+        <div>
+            <label class="font-semibold">Duration (minutes)</label>
+            <input name="duration" class="w-full p-2 border rounded" value="{{ $procedure->duration }}" required>
+        </div>
+
+        <div>
+            <label class="font-semibold">Description</label>
+            <textarea name="description" class="w-full p-2 border rounded" rows="4">{{ $procedure->description }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-semibold">Requirements</label>
+            <textarea name="requirements" class="w-full p-2 border rounded" rows="3">{{ $procedure->requirements }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-semibold">Level</label>
+            <input name="level" class="w-full p-2 border rounded" value="{{ $procedure->level }}">
+        </div>
+
+        <div>
+            <label class="font-semibold">Equipment</label>
+            <textarea name="equipment" class="w-full p-2 border rounded" rows="3">{{ $procedure->equipment }}</textarea>
+        </div>
+
+        <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            Save Changes
+        </button>
+    </form>
+</div>
 @endsection

@@ -1,100 +1,105 @@
 @extends('layout')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-6">Procedures</h1>
+<div class="max-w-6xl mx-auto">
 
-<!-- Filtros -->
-<form method="GET" action="{{ route('procedures.index') }}" class="grid md:grid-cols-5 gap-3 mb-6">
-    <input
-        type="text"
-        name="search"
-        placeholder="Search in title/code/category..."
-        value="{{ request('search') }}"
-        class="border rounded px-3 py-2 w-full shadow-sm focus:ring-blue-400 focus:border-blue-400"
-    >
+    <!-- TITLE -->
+    <h1 class="text-3xl font-bold mb-6">Procedures</h1>
 
-    <input
-        type="text"
-        name="code"
-        placeholder="Code"
-        value="{{ request('code') }}"
-        class="border rounded px-3 py-2 w-full shadow-sm focus:ring-blue-400 focus:border-blue-400"
-    >
+    <!-- SEARCH + FILTERS -->
+    <form method="GET" class="bg-white p-4 rounded-lg shadow mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
 
-    <select
-        name="category"
-        class="border rounded px-3 py-2 w-full shadow-sm focus:ring-blue-400 focus:border-blue-400"
-    >
-        <option value="">All categories</option>
-        @isset($categories)
-            @foreach($categories as $cat)
-                <option value="{{ $cat }}" @selected(request('category') === $cat)>
-                    {{ $cat }}
-                </option>
-            @endforeach
-        @endisset
-    </select>
+        <!-- Search -->
+        <div class="md:col-span-2">
+            <label class="text-sm font-semibold text-gray-600">Search</label>
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Search by title, code, description..."
+                   class="w-full border rounded p-2">
+        </div>
 
-    <input
-        type="number"
-        name="min_duration"
-        placeholder="Min duration"
-        value="{{ request('min_duration') }}"
-        class="border rounded px-3 py-2 w-full shadow-sm focus:ring-blue-400 focus:border-blue-400"
-    >
+        <!-- Category -->
+        <div>
+            <label class="text-sm font-semibold text-gray-600">Category</label>
+            <select name="category" class="w-full border rounded p-2">
+                <option value="">All</option>
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat }}" @selected(request('category') === $cat)>
+                        {{ $cat }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-    <input
-        type="number"
-        name="max_duration"
-        placeholder="Max duration"
-        value="{{ request('max_duration') }}"
-        class="border rounded px-3 py-2 w-full shadow-sm focus:ring-blue-400 focus:border-blue-400"
-    >
+        <!-- Min Duration -->
+        <div>
+            <label class="text-sm font-semibold text-gray-600">Min Duration</label>
+            <input type="number" name="min_duration" value="{{ request('min_duration') }}" class="w-full border rounded p-2">
+        </div>
 
-    <div class="md:col-span-5 flex gap-3">
-        <button class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">
-            Apply filters
-        </button>
-        <a href="{{ route('procedures.index') }}" class="px-4 py-2 rounded border">
-            Clear
-        </a>
+        <!-- Max Duration -->
+        <div>
+            <label class="text-sm font-semibold text-gray-600">Max Duration</label>
+            <input type="number" name="max_duration" value="{{ request('max_duration') }}" class="w-full border rounded p-2">
+        </div>
+
+        <div class="md:col-span-4 flex justify-end mt-2">
+            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Apply Filters
+            </button>
+        </div>
+    </form>
+
+    <!-- RESULTS -->
+    @if ($procedures->isEmpty())
+        <p class="text-gray-600 text-center">No procedures found.</p>
+    @endif
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @foreach ($procedures as $p)
+        <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition border border-gray-100">
+
+            <!-- Title -->
+            <h2 class="text-xl font-bold mb-2">{{ $p['title'] }}</h2>
+
+            <!-- Category -->
+            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-3">
+                {{ $p['category'] }}
+            </span>
+
+            <!-- Code -->
+            <p class="text-sm text-gray-600"><strong>Code:</strong> {{ $p['code'] }}</p>
+
+            <!-- Duration -->
+            <p class="text-sm text-gray-600"><strong>Duration:</strong> {{ $p['duration'] }} minutes</p>
+
+            <!-- Short Description -->
+            @if (!empty($p['description']))
+                <p class="text-gray-700 mt-3 text-sm line-clamp-3">
+                    {{ $p['description'] }}
+                </p>
+            @endif
+
+            <!-- Button -->
+            <a href="{{ url('/procedures/' . $p['code']) }}"
+               class="block mt-4 text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                View Details
+            </a>
+
+        </div>
+        @endforeach
+
     </div>
-</form>
-
-<!-- Tabela -->
-<div class="overflow-x-auto bg-white shadow rounded-lg">
-    <table class="min-w-full border-collapse">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="p-3 border text-left">Code</th>
-                <th class="p-3 border text-left">Title</th>
-                <th class="p-3 border text-left">Category</th>
-                <th class="p-3 border text-left">Duration</th>
-                <th class="p-3 border text-right">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($procedures as $p)
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 border">{{ $p['code'] }}</td>
-                    <td class="p-3 border">{{ $p['title'] }}</td>
-                    <td class="p-3 border">{{ $p['category'] ?: '—' }}</td>
-                    <td class="p-3 border">{{ $p['duration'] }} min</td>
-                    <td class="p-3 border text-right">
-                        <a href="{{ route('procedures.show', $p['code']) }}"
-                           class="text-blue-600 hover:underline text-sm">
-                            View details
-                        </a>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="p-4 text-center text-gray-500">
-                        No procedures found with the current filters.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
 </div>
+
+<!-- Utility for truncating text -->
+<style>
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
 @endsection
