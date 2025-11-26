@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProcedureController extends Controller
 {
@@ -10,109 +11,70 @@ class ProcedureController extends Controller
     {
         $xmlPath = storage_path('app/xml/procedures.xml');
 
-        if (! file_exists($xmlPath)) {
-            abort(500, 'XML file not found: ' . $xmlPath);
-        }
+        $raw = file_get_contents($xmlPath);
 
-        return simplexml_load_file($xmlPath);
+        // Remove text nodes, whitespaces, indentation inside XML
+        $clean = preg_replace('/>\s+</', '><', $raw);
+
+        return simplexml_load_string($clean);
     }
 
     private function saveXml($xml): void
     {
         $xmlPath = storage_path('app/xml/procedures.xml');
-        $xml->asXML($xmlPath);
+
+        $clean = preg_replace('/>\s+</', '><', $xml->asXML());
+
+        file_put_contents($xmlPath, $clean);
     }
 
-    /**
-     * Converts a <procedure> XML node to a PHP array
-     */
     private function mapProcedure(\SimpleXMLElement $p): array
     {
         return [
-            'code'        => (string) $p->code,
-            'title'       => (string) $p->title,
-            'category'    => (string) $p->category,
-            'duration'    => (string) $p->duration,
-            'description' => (string) $p->description,
-            'requirements'=> (string) $p->requirements,
-            'level'       => (string) $p->level,
-            'equipment'   => (string) $p->equipment,
-            'updated_at'  => (string) $p->updated_at,
+            'code'        => trim((string)$p->code),
+            'title'       => trim((string)$p->title),
+            'category'    => trim((string)$p->category),
+            'duration'    => (int) filter_var((string)$p->duration, FILTER_SANITIZE_NUMBER_INT),
+            'description' => trim((string)$p->description),
+            'requirements' => trim((string)$p->requirements),
+            'level'       => trim((string)$p->level),
+            'equipment'   => trim((string)$p->equipment),
+            'updated_at'  => trim((string)$p->updated_at),
         ];
     }
 
-    // ============================
-    // PUBLIC LIST WITH FILTERS
-    // ============================
-    public function index(Request $request)
-    {
-        $xml = $this->loadXml();
-
-        $all = collect($xml->procedure)->map(fn($p) => $this->mapProcedure($p));
-        $procedures = $all;
-
-        // SEARCH
-        if ($request->filled('search')) {
-            $s = strtolower($request->search);
-            $procedures = $procedures->filter(function ($p) use ($s) {
-                return str_contains(strtolower($p['title']), $s)
-                    || str_contains(strtolower($p['code']), $s)
-                    || str_contains(strtolower($p['category']), $s)
-                    || str_contains(strtolower($p['description']), $s);
-            });
-        }
-
-        // FILTERS
-        if ($request->filled('category')) {
-            $procedures = $procedures->where('category', $request->category);
-        }
-
-        if ($request->filled('min_duration')) {
-            $procedures = $procedures->filter(fn($p) =>
-                (int)$p['duration'] >= (int)$request->min_duration
-            );
-        }
-
-        if ($request->filled('max_duration')) {
-            $procedures = $procedures->filter(fn($p) =>
-                (int)$p['duration'] <= (int)$request->max_duration
-            );
-        }
-
-        // unique categories for dropdown
-        $categories = $all->pluck('category')->unique()->sort()->values();
-
-        return view('procedures', compact('procedures', 'categories'));
-    }
-
-    // ============================
-    // SHOW PAGE
-    // ============================
-    public function show(string $code)
-    {
-        $xml = $this->loadXml();
-
-        foreach ($xml->procedure as $p) {
-            if ((string)$p->code === $code) {
-                $procedure = $this->mapProcedure($p);
-                return view('procedure-show', compact('procedure'));
-            }
-        }
-
-        abort(404);
-    }
-
-    // ============================
+    // ===========================================
     // ADMIN PANEL
-    // ============================
+    // ===========================================
     public function adminIndex()
     {
         $xml = $this->loadXml();
-        $procedures = collect($xml->procedure)->map(fn($p) => $this->mapProcedure($p));
+        $all = collect($xml->xpath('//procedure'))
+            ->map(fn($p) => $this->mapProcedure($p));
 
-        return view('admin.index', compact('procedures'));
+        // PAGINAÇÃO "MANUAL"
+        $page = request()->get('page', 1);
+        $perPage = 10;
+
+        $procedures = new \Illuminate\Pagination\LengthAwarePaginator(
+            $all->slice(($page - 1) * $perPage, $perPage)->values(),
+            $all->count(),
+            $perPage,
+            $page,
+            ['path' => route('admin.index')]
+        );
+
+        // Stats
+        $stats = [
+            'total' => $all->count(),
+            'avgDuration' => $all->avg(fn($p) => (int)$p['duration']),
+            'byCategory' => $all->groupBy('category')->map->count()
+        ];
+
+        return view('admin.index', compact('procedures', 'stats'));
     }
 
+    // EDIT FORM
     public function edit(string $code)
     {
         $xml = $this->loadXml();
@@ -126,6 +88,7 @@ class ProcedureController extends Controller
         abort(404);
     }
 
+    // UPDATE (SAVE EDITED)
     public function update(Request $request, string $code)
     {
         $data = $request->validate([
@@ -133,7 +96,7 @@ class ProcedureController extends Controller
             'category'    => 'nullable|string|max:255',
             'duration'    => 'required|string|max:50',
             'description' => 'nullable|string',
-            'requirements'=> 'nullable|string',
+            'requirements' => 'nullable|string',
             'level'       => 'nullable|string|max:100',
             'equipment'   => 'nullable|string',
         ]);
@@ -142,16 +105,10 @@ class ProcedureController extends Controller
 
         foreach ($xml->procedure as $p) {
             if ((string)$p->code === $code) {
-
-                // UPDATE ALL FIELDS WITHOUT LOSING DATA
-                $p->title       = $data['title'];
-                $p->category    = $data['category'];
-                $p->duration    = $data['duration'];
-                $p->description = $data['description'];
-                $p->requirements= $data['requirements'];
-                $p->level       = $data['level'];
-                $p->equipment   = $data['equipment'];
-                $p->updated_at  = date('Y-m-d');
+                foreach ($data as $key => $value) {
+                    $p->{$key} = $value;
+                }
+                $p->updated_at = date('Y-m-d');
             }
         }
 
@@ -160,11 +117,13 @@ class ProcedureController extends Controller
         return redirect()->route('admin.index')->with('success', 'Procedure updated successfully.');
     }
 
+    // CREATE FORM
     public function create()
     {
         return view('admin.create');
     }
 
+    // STORE NEW PROCEDURE
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -173,7 +132,7 @@ class ProcedureController extends Controller
             'category'    => 'nullable|string|max:255',
             'duration'    => 'required|string|max:50',
             'description' => 'nullable|string',
-            'requirements'=> 'nullable|string',
+            'requirements' => 'nullable|string',
             'level'       => 'nullable|string|max:100',
             'equipment'   => 'nullable|string',
         ]);
@@ -181,14 +140,9 @@ class ProcedureController extends Controller
         $xml = $this->loadXml();
 
         $new = $xml->addChild('procedure');
-        $new->addChild('code', $data['code']);
-        $new->addChild('title', $data['title']);
-        $new->addChild('category', $data['category']);
-        $new->addChild('duration', $data['duration']);
-        $new->addChild('description', $data['description']);
-        $new->addChild('requirements', $data['requirements']);
-        $new->addChild('level', $data['level']);
-        $new->addChild('equipment', $data['equipment']);
+        foreach ($data as $k => $v) {
+            $new->addChild($k, $v);
+        }
         $new->addChild('updated_at', date('Y-m-d'));
 
         $this->saveXml($xml);
@@ -196,6 +150,7 @@ class ProcedureController extends Controller
         return redirect()->route('admin.index')->with('success', 'Procedure created successfully.');
     }
 
+    // DELETE PROCEDURE
     public function delete(string $code)
     {
         $xml = $this->loadXml();
@@ -212,5 +167,39 @@ class ProcedureController extends Controller
         $this->saveXml($xml);
 
         return redirect()->route('admin.index')->with('success', 'Procedure deleted successfully.');
+    }
+
+    // UPLOAD EXTERNAL XML
+    public function uploadXml(Request $request)
+    {
+        $request->validate([
+            'xml_file' => ['required', 'file', 'mimes:xml']
+        ]);
+
+        $uploadedXml = simplexml_load_file(
+            $request->file('xml_file')->getRealPath()
+        );
+
+        if (!isset($uploadedXml->procedure)) {
+            return redirect()->back()->withErrors(['Invalid XML format.']);
+        }
+
+        $mainXml = $this->loadXml();
+
+        foreach ($uploadedXml->procedure as $p) {
+            $exists = collect($mainXml->procedure)
+                ->contains(fn($x) => (string)$x->code === (string)$p->code);
+
+            if ($exists) continue;
+
+            $new = $mainXml->addChild('procedure');
+            foreach ($p->children() as $key => $value) {
+                $new->addChild($key, (string)$value);
+            }
+        }
+
+        $this->saveXml($mainXml);
+
+        return redirect()->back()->with('success', 'XML imported successfully!');
     }
 }

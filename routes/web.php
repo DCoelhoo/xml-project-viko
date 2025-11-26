@@ -21,6 +21,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/create', [ProcedureController::class, 'create'])->name('admin.create');
     Route::post('/admin/store', [ProcedureController::class, 'store'])->name('admin.store');
     Route::post('/admin/delete/{code}', [ProcedureController::class, 'delete'])->name('admin.delete');
+    Route::post('/admin/upload-xml', [ProcedureController::class, 'uploadXml'])->name('admin.uploadXml');
 });
 
 // AUTH

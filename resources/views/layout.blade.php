@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'XML Procedures Project' }}</title>
     @vite('resources/css/app.css')
 </head>
+
 <body class="bg-gray-100 text-gray-900">
 
     <!-- NAVBAR -->
@@ -19,11 +21,17 @@
                 <a href="/contact" class="hover:text-gray-200">Contact</a>
                 <a href="/about" class="hover:text-gray-200">About</a>
 
-                @if(session()->has('admin'))
-                    <a href="/admin" class="ml-4 bg-white text-blue-600 px-3 py-1 rounded shadow hover:bg-gray-100">
-                        Admin
+                {{-- LOGIN / ADMIN BUTTONS --}}
+                @if (!session()->has('admin'))
+                    <a href="{{ url('/admin/login') }}"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Login
                     </a>
-                    <a href="/admin/logout" class="hover:text-gray-200">Logout</a>
+                @else
+                    <a href="{{ url('/admin') }}"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Admin Panel
+                    </a>
                 @endif
             </div>
         </div>
@@ -38,6 +46,7 @@
     <footer class="bg-gray-800 text-gray-300 text-center py-4 mt-12">
         <p>© {{ date('Y') }} XML Project. All rights reserved.</p>
     </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
+
 </html>
