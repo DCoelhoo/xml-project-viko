@@ -1,43 +1,59 @@
 @extends('layout')
 
 @section('content')
-<div class="max-w-4xl mx-auto mt-10 px-5">
+<div class="max-w-5xl mx-auto px-6">
 
-    <h1 class="text-4xl font-bold mb-6 text-blue-600">About Our Training Procedures</h1>
+    <!-- HEADER -->
+    <div class="text-center mb-16">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-4">About This Platform</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+            This website was developed as part of a training project focused on web development,
+            XML data integration, and the creation of dynamic, responsive interfaces using modern technologies.
+        </p>
+    </div>
 
-    <p class="text-gray-700 leading-relaxed mb-6">
-        Our company is committed to delivering high-quality training guidance for all operational fields.
-        The procedures listed in this platform are designed to ensure safety, consistency and compliance with
-        the highest industry standards.
-    </p>
 
-    <h2 class="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
-    <p class="text-gray-700 leading-relaxed mb-6">
-        We aim to simplify the access to training information and streamline the learning process through
-        clear and well-structured documentation. By centralizing all procedures in a digital format, we
-        ensure that employees always have access to the latest and most accurate information.
-    </p>
+    <!-- CARDS SECTION -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
 
-    <h2 class="text-2xl font-semibold mt-8 mb-4">Why Training Matters</h2>
-    <p class="text-gray-700 leading-relaxed mb-6">
-        Proper training is essential for maintaining safety, operational efficiency and compliance with
-        internal and external regulations. With structured and standardized procedures, all team members
-        can perform their tasks with confidence and precision.
-    </p>
+        <div class="bg-white p-8 rounded-xl shadow hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold mb-3">Project Goal</h3>
+            <p class="text-gray-600">
+                The main objective of this project is to provide a simple and intuitive way to browse,
+                search and visualize training procedures stored in an XML structure.
+                The system reads, filters and displays the data dynamically in a user-friendly format.
+            </p>
+        </div>
 
-    <h2 class="text-2xl font-semibold mt-8 mb-4">What This Platform Provides</h2>
-    <ul class="list-disc pl-6 text-gray-700 space-y-2">
-        <li>Fast access to training procedures</li>
-        <li>Search and filtering tools</li>
-        <li>Clear categorization of documents</li>
-        <li>Secure administrator panel for content management</li>
-        <li>Automatic XML-based data handling</li>
-    </ul>
+        <div class="bg-white p-8 rounded-xl shadow hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold mb-3">Technologies Used</h3>
+            <p class="text-gray-600">
+                This project was built with Laravel, PHP and TailwindCSS.
+                It also includes an XML-based data source and a small admin interface for managing procedures.
+                The goal was to practice full-stack development principles.
+            </p>
+        </div>
 
-    <p class="text-gray-700 mt-8">
-        We are constantly improving our tools to make training more efficient and accessible for everyone.
-        Thank you for using our platform!
-    </p>
+        <div class="bg-white p-8 rounded-xl shadow hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold mb-3">Learning Outcomes</h3>
+            <p class="text-gray-600">
+                Throughout the development of this project, skills such as XML parsing,
+                backend logic, route handling, responsive design and CRUD operations were practiced
+                and consolidated.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- BIG BANNER -->
+    <div class="bg-blue-600 text-white p-10 rounded-2xl shadow text-center mb-20">
+        <h2 class="text-2xl font-bold mb-3">A Simple and Efficient Training Procedure Explorer</h2>
+        <p class="text-blue-100 max-w-2xl mx-auto">
+            This platform demonstrates how structured data can be organized and visualized in a modern
+            web application. It combines both backend logic and frontend design into an integrated experience.
+        </p>
+    </div>
 
 </div>
 @endsection
