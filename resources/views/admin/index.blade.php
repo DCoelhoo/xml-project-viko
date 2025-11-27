@@ -85,7 +85,7 @@
 
         <div class="bg-white p-6 shadow rounded">
             <h3 class="font-semibold text-lg">Average Duration</h3>
-            <p class="text-3xl mt-3">{{ $stats['avgDuration'] }} min</p>
+            <p class="text-3xl mt-3">{{ number_format($stats['avgDuration'], 1) }} min</p>
         </div>
 
         <div class="bg-white p-6 shadow rounded">
