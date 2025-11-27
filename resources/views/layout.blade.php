@@ -27,7 +27,7 @@
                 {{-- IF NOT LOGGED IN → SHOW PUBLIC LINKS --}}
                 @if (!session()->has('admin'))
                     <a href="/" class="hover:text-gray-200">Home</a>
-                    <a href="/procedures" class="hover:text-gray-200">Procedures</a>
+                    <a href="/how-it-works" class="hover:text-gray-200">How it works</a>
                     <a href="/contact" class="hover:text-gray-200">Contact</a>
                     <a href="/about" class="hover:text-gray-200">About</a>
 
@@ -68,8 +68,8 @@
 
     <!-- FOOTER -->
     <footer
-        class="bg-gray-800 text-gray-300 text-center py-4 
-    @if (request()->is('admin/login')) fixed bottom-0 left-0 w-full @endif">
+        class="bg-gray-800 text-gray-300 text-center py-4
+        @if (request()->is('admin/login') || request()->is('contact')) fixed bottom-0 left-0 w-full @endif">
         <p>© {{ date('Y') }} XML Project. All rights reserved.</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

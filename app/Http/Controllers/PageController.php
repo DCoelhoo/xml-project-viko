@@ -14,9 +14,28 @@ class PageController extends Controller
         return view('home');
     }
 
+    public function howItWorks()
+    {
+        return view('how-it-works');
+    }
+
     public function contact()
     {
         return view('contact');
+    }
+
+    public function sendContact(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'name' => 'required|min:2',
+            'email' => 'required|email',
+            'message' => 'required|min:5',
+        ]);
+
+        // (Optional) Here you could send email or save to DB
+
+        return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
 
     public function about()

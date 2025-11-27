@@ -6,11 +6,12 @@ use App\Http\Controllers\ProcedureController;
 
 // Páginas públicas
 Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/how-it-works', [PageController::class, 'howItWorks'])->name('how.it.works');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
-Route::get('/procedures', [ProcedureController::class, 'index'])->name('procedures.index');
-Route::get('/procedures/{code}', [ProcedureController::class, 'show'])->name('procedures.show');
+Route::post('/contact/send', [PageController::class, 'sendContact'])->name('contact.send');
+
 
 // Login admin
 Route::get('/admin/login', [PageController::class, 'login'])->name('admin.login');
