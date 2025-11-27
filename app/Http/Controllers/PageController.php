@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class PageController extends Controller
@@ -24,18 +25,27 @@ class PageController extends Controller
         return view('contact');
     }
 
+
     public function sendContact(Request $request)
     {
-        // Validate input
         $request->validate([
-            'name' => 'required|min:2',
+            'name' => 'required',
             'email' => 'required|email',
-            'message' => 'required|min:5',
+            'message' => 'required',
         ]);
 
-        // (Optional) Here you could send email or save to DB
+        // Build simple text message
+        $body =
+            "Name: {$request->name}\n" .
+            "Email: {$request->email}\n\n" .
+            "Message:\n{$request->message}";
 
-        return redirect()->back()->with('success', 'Your message has been sent successfully!');
+        Mail::raw($body, function ($msg) {
+            $msg->to(env('MAIL_FROM_ADDRESS'))   // Mailtrap inbox
+                ->subject('New Contact Form Message');
+        });
+
+        return back()->with('success', 'Your message has been sent successfully!');
     }
 
     public function about()
