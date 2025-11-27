@@ -68,9 +68,9 @@
 
     <!-- FOOTER -->
     <footer
-        class="bg-gray-800 text-gray-300 text-center py-4
-        @if (request()->is('admin/login') || request()->is('contact')) fixed bottom-0 left-0 w-full @endif">
-        <p>© {{ date('Y') }} XML Project. All rights reserved.</p>
+        class="bg-gray-800 text-gray-300 text-center py-4 
+        @if (request()->is('admin/login')) fixed bottom-0 left-0 w-full @endif">
+        <p>© {{ date('Y') }} XML Project. All rights reserved. - <a href="https://dgportfolio.pt" target="_blank" class="text-blue-400 hover:text-blue-300">Portfolio</a></p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
