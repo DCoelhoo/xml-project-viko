@@ -46,42 +46,90 @@ class ProcedureController extends Controller
     // ===========================================
     // ADMIN PANEL
     // ===========================================
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        // Carrega TODO o XML
+        // Loads XML
         $xml = $this->loadXml();
 
-        // Todas as procedures (sem paginar)
+        // All procedures mapped
         $all = collect($xml->xpath('//procedure'))
             ->map(fn($p) => $this->mapProcedure($p));
 
-        // Paginação
+        // ==========================================
+        // APPLY SEARCH + FILTERS
+        // ==========================================
+
+
+        $filtered = $all;
+
+        // SEARCH
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+
+            $filtered = $filtered->filter(function ($p) use ($search) {
+                return str_contains(strtolower($p['title']), $search)
+                    || str_contains(strtolower($p['code']), $search)
+                    || str_contains(strtolower($p['category']), $search);
+            });
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $filtered = $filtered->where('category', $request->category);
+        }
+
+        // Filter by min duration
+        if ($request->filled('min_duration')) {
+            $filtered = $filtered->where('duration', '>=', (int) $request->min_duration);
+        }
+
+        // Filter by max duration
+        if ($request->filled('max_duration')) {
+            $filtered = $filtered->where('duration', '<=', (int) $request->max_duration);
+        }
+
+
+        // ==========================================
+        // PAGINATION (using filtered list)
+        // ==========================================
+
         $page = request()->get('page', 1);
         $perPage = 10;
 
         $procedures = new \Illuminate\Pagination\LengthAwarePaginator(
-            $all->slice(($page - 1) * $perPage, $perPage)->values(),
-            $all->count(),
+            $filtered->slice(($page - 1) * $perPage, $perPage)->values(),
+            $filtered->count(),
             $perPage,
             $page,
             ['path' => route('admin.index')]
         );
 
-        // Stats — AGORA com TODAS as procedures
-        $stats = [
-            'total'        => $all->count(),
-            'avgDuration'  => $all->avg(fn($p) => (int)$p['duration']),
-            'min'          => $all->min(fn($p) => (int)$p['duration']),
-            'max'          => $all->max(fn($p) => (int)$p['duration']),
-            'byCategory'   => $all->groupBy('category')->map->count(),
 
-            // Gráficos
-            'titles'       => $all->pluck('title')->values(),
-            'durations'    => $all->pluck('duration')->values(),
-            'updatedDates' => $all->pluck('updated_at')->values(),
+        // ==========================================
+        // STATS (FULL DATASET, NOT FILTERED)
+        // ==========================================
+
+        $stats = [
+            'count'        => $filtered->count(),
+            'avgDuration'  => $filtered->avg('duration'),
+            'min'          => $filtered->min('duration'),
+            'max'          => $filtered->max('duration'),
+            'byCategory'   => $filtered->groupBy('category')->map->count(),
+            'titles'       => $filtered->pluck('title'),
+            'durations'    => $filtered->pluck('duration'),
+            'updatedDates' => $filtered->pluck('updated_at'),
         ];
 
-        return view('admin.index', compact('procedures', 'stats'));
+        // For dropdown
+        $categories = $all->pluck('category')->unique()->sort()->values();
+
+
+        return view('admin.index', [
+            'procedures' => $procedures,
+            'stats'      => $stats,
+            'categories' => $categories,
+            'all'        => $all,
+        ]);
     }
 
     // EDIT FORM
