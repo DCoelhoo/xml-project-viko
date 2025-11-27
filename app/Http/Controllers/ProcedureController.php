@@ -48,11 +48,14 @@ class ProcedureController extends Controller
     // ===========================================
     public function adminIndex()
     {
+        // Carrega TODO o XML
         $xml = $this->loadXml();
+
+        // Todas as procedures (sem paginar)
         $all = collect($xml->xpath('//procedure'))
             ->map(fn($p) => $this->mapProcedure($p));
 
-        // PAGINAÇÃO "MANUAL"
+        // Paginação
         $page = request()->get('page', 1);
         $perPage = 10;
 
@@ -64,11 +67,18 @@ class ProcedureController extends Controller
             ['path' => route('admin.index')]
         );
 
-        // Stats
+        // Stats — AGORA com TODAS as procedures
         $stats = [
-            'total' => $all->count(),
-            'avgDuration' => $all->avg(fn($p) => (int)$p['duration']),
-            'byCategory' => $all->groupBy('category')->map->count()
+            'total'        => $all->count(),
+            'avgDuration'  => $all->avg(fn($p) => (int)$p['duration']),
+            'min'          => $all->min(fn($p) => (int)$p['duration']),
+            'max'          => $all->max(fn($p) => (int)$p['duration']),
+            'byCategory'   => $all->groupBy('category')->map->count(),
+
+            // Gráficos
+            'titles'       => $all->pluck('title')->values(),
+            'durations'    => $all->pluck('duration')->values(),
+            'updatedDates' => $all->pluck('updated_at')->values(),
         ];
 
         return view('admin.index', compact('procedures', 'stats'));

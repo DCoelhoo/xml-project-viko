@@ -8,6 +8,8 @@
     @vite('resources/css/app.css')
 </head>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@yield('scripts')
 <body class="bg-gray-100 text-gray-900">
 
     <!-- NAVBAR -->
