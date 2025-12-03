@@ -23,21 +23,21 @@
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
 
         <div class="bg-white p-8 rounded-lg shadow text-center">
-            <h3 class="text-xl font-bold mb-3">📄 Upload XML Files</h3>
+            <h3 class="text-xl font-bold mb-3">Upload XML Files</h3>
             <p class="text-gray-600">
                 Import procedure lists instantly using the XML upload tool available on the admin panel.
             </p>
         </div>
 
         <div class="bg-white p-8 rounded-lg shadow text-center">
-            <h3 class="text-xl font-bold mb-3">🛠️ Manage Procedures</h3>
+            <h3 class="text-xl font-bold mb-3">Manage Procedures</h3>
             <p class="text-gray-600">
                 Edit, delete, or create new procedures with a clean and easy-to-use interface.
             </p>
         </div>
 
         <div class="bg-white p-8 rounded-lg shadow text-center">
-            <h3 class="text-xl font-bold mb-3">📊 Visual Dashboards</h3>
+            <h3 class="text-xl font-bold mb-3">Visual Dashboards</h3>
             <p class="text-gray-600">
                 View rich charts showing procedure categories, evolution over time, and statistics.
             </p>

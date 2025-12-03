@@ -96,8 +96,12 @@
                                 <a href="{{ route('admin.edit', $p['code']) }}"
                                     class="text-blue-600 hover:underline mr-3">Edit</a>
 
-                                <a href="{{ route('admin.delete', $p['code']) }}" class="text-red-600 hover:underline"
-                                    onclick="return confirm('Are you sure?')">Delete</a>
+                                <form action="{{ route('admin.delete', $p['code']) }}" method="POST" class="inline"
+                                    onsubmit="return confirm('Are you sure?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-red-600 hover:underline">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach

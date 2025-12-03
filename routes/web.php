@@ -28,7 +28,7 @@ Route::middleware(['admin', 'admin.timeout'])->group(function () {
     Route::get('/admin/edit/{code}', [ProcedureController::class, 'edit'])->name('admin.edit');
     Route::post('/admin/update/{code}', [ProcedureController::class, 'update'])->name('admin.update');
 
-    Route::post('/admin/delete/{code}', [ProcedureController::class, 'delete'])->name('admin.delete');
+    Route::delete('/admin/delete/{code}', [ProcedureController::class, 'delete'])->name('admin.delete');
 
     Route::post('/admin/upload-xml', [ProcedureController::class, 'uploadXml'])
         ->name('admin.uploadXml');
